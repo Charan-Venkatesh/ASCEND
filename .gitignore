@@ -1,0 +1,10 @@
+node_modules/
+.next/
+*.tsbuildinfo
+__pycache__/
+*.pyc
+.env
+.venv/
+postgres_data/
+redis_data/
+qdrant_data/

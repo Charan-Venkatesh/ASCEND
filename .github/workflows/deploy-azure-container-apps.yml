@@ -1,0 +1,38 @@
+name: Deploy ASCEND OS
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: Build backend image
+        run: az acr build --registry ${{ secrets.AZURE_ACR_NAME }} --image ascend-backend:${{ github.sha }} ./backend
+      - name: Build frontend image
+        run: az acr build --registry ${{ secrets.AZURE_ACR_NAME }} --image ascend-frontend:${{ github.sha }} ./frontend
+      - name: Deploy backend
+        run: |
+          LOGIN_SERVER=$(az acr show --name "${{ secrets.AZURE_ACR_NAME }}" --query loginServer -o tsv)
+          az containerapp update \
+            --resource-group "${{ secrets.AZURE_RESOURCE_GROUP }}" \
+            --name ascend-backend \
+            --image "$LOGIN_SERVER/ascend-backend:${{ github.sha }}"
+      - name: Deploy frontend
+        run: |
+          LOGIN_SERVER=$(az acr show --name "${{ secrets.AZURE_ACR_NAME }}" --query loginServer -o tsv)
+          az containerapp update \
+            --resource-group "${{ secrets.AZURE_RESOURCE_GROUP }}" \
+            --name ascend-frontend \
+            --image "$LOGIN_SERVER/ascend-frontend:${{ github.sha }}"

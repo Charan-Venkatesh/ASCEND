@@ -1,0 +1,13 @@
+{
+  "basePath": "/api/v1",
+  "auth": "Bearer JWT",
+  "primaryFlows": [
+    "POST /auth/register",
+    "POST /roadmaps/generate",
+    "GET /dashboard/today",
+    "GET /missions/{mission_id}",
+    "POST /missions/{mission_id}/evidence",
+    "POST /missions/{mission_id}/complete",
+    "POST /mentor/chat"
+  ]
+}
